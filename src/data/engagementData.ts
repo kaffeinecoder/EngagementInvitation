@@ -1,0 +1,1 @@
+export const engagementData={couple:{pavan:'Pavan',sanjana:'Sanjana'},event:{title:'Engagement Ceremony',date:'24 October 2026',iso:'2026-10-24T18:00:00+05:30',venue:'Vidya Bharati Sabha Bhavan',city:'Dharwad'},contacts:[{name:'Pavan',phone:'8197760715'},{name:'Sanjana',phone:'9353239592'}],rsvpDeadline:'15 October 2026'} as const;

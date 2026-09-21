@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Italiana&family=Manrope:wght@400;500;600;700&display=swap');
+
+@import 'tailwindcss';
+
+:root {
+  font-family: 'Manrope', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #2a2124;
+  background: #f4efe9;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: linear-gradient(180deg, #f4efe9 0%, #fffaf7 100%);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+.serif {
+  font-family: 'Italiana', serif;
+  letter-spacing: 0.02em;
+}
+
+/* ==================== FEATURE 1: ENVELOPE INTRO ==================== */
+.envelope-overlay { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: #f4efe9; perspective: 1000px; cursor: pointer; }
+.envelope-stage { position: relative; width: min(88vw, 430px); text-align: center; }
+.envelope-body { position: relative; z-index: 2; height: 230px; border: 1px solid #d7bca5; background: #fff9f2; box-shadow: 0 28px 65px rgba(62,42,50,.2); }
+.envelope-flap { position: absolute; inset: 0 0 auto; height: 125px; transform-origin: top; background: #f4e3d8; border-bottom: 1px solid #d7bca5; clip-path: polygon(0 0, 100% 0, 50% 100%); transition: transform .8s cubic-bezier(.7,0,.25,1); }
+.wax-seal { position: absolute; z-index: 3; left: 50%; top: 102px; display: grid; place-items: center; width: 58px; height: 58px; transform: translateX(-50%); border-radius: 50%; border: 3px solid #b89053; background: #a87843; color: #fff8e8; font: 600 12px Georgia, serif; letter-spacing: 1px; box-shadow: 0 4px 9px rgba(60,35,23,.2); transition: transform .35s, opacity .35s; }
+.wax-seal span { margin: 0 2px; }
+.invitation-card { position: absolute; z-index: 1; left: 50%; bottom: 38px; width: 78%; padding: 28px 10px; transform: translateX(-50%) translateY(0) scale(.72); border: 1px solid #e2cbb7; background: #fffdf9; color: #321c2b; font-size: 30px; box-shadow: 0 12px 25px rgba(62,42,50,.12); transition: transform 1s cubic-bezier(.2,.8,.2,1); }
+.invitation-card span { color: #b56e68; }
+.invitation-card-date { margin-top: 10px; font: 9px Manrope, sans-serif; letter-spacing: .22em; text-transform: uppercase; color: #8b5d5d; }
+.envelope-prompt { margin: 25px 0 0; color: #765c55; font-size: 11px; letter-spacing: .3em; text-transform: uppercase; }
+.is-opening .envelope-flap { transform: rotateX(175deg); }
+.is-opening .wax-seal { transform: translateX(-50%) scale(.85) rotate(-10deg); opacity: 0; }
+.is-opening .invitation-card { transform: translateX(-50%) translateY(-150px) scale(1.35); }
+.is-opening { animation: envelope-fade 0.55s 1.35s forwards; pointer-events: none; }
+@keyframes envelope-fade { to { opacity: 0; visibility: hidden; } }
+.music-toggle { position: fixed; right: 1rem; bottom: 1rem; z-index: 120; display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid #d7bca5; border-radius: 50%; background: rgba(255,249,242,.94); color: #321c2b; box-shadow: 0 8px 20px rgba(62,42,50,.18); cursor: pointer; }
+.music-toggle:hover { background: #fff; }
+
+/* ==================== FEATURES 2-5: SHARED SECTIONS ==================== */
+.feature-section { margin-top: 3.5rem; padding: 3rem clamp(1.2rem, 4vw, 3.5rem); border-radius: 2rem; border: 1px solid rgba(255,255,255,.8); background: #f6ede8; box-shadow: 0 24px 70px rgba(77,58,68,.12); }
+.wishes-section { display: none; }
+.section-heading { margin-bottom: 2rem; text-align: center; }
+.section-heading p { margin: 0 0 .65rem; color: #986f76; font-size: 10px; font-weight: 700; letter-spacing: .36em; text-transform: uppercase; }
+.section-heading h2 { margin: 0; color: #3b2731; font-size: clamp(2.2rem, 5vw, 3.5rem); }
+
+/* ==================== FEATURE 2: PHOTO GALLERY ==================== */
+.gallery-grid, .wishes-grid { columns: 3 190px; column-gap: 1.25rem; }
+.polaroid-card { display: block; width: 100%; margin: 0 0 1.25rem; padding: .65rem .65rem .9rem; break-inside: avoid; border: 0; background: white; color: #5d474d; box-shadow: 0 12px 24px rgba(70,44,52,.14); cursor: pointer; opacity: 0; transform: translateY(25px) rotate(0deg); transition: opacity .6s, transform .35s, box-shadow .35s; }
+.polaroid-card.is-visible { opacity: 1; transform: translateY(0) rotate(var(--rotation)); }
+.polaroid-card:hover { transform: translateY(-8px) rotate(0deg); box-shadow: 0 20px 30px rgba(70,44,52,.2); }
+.polaroid-card img { display: block; width: 100%; aspect-ratio: 1 / 1.08; object-fit: cover; }
+.polaroid-card span { display: block; padding: .7rem .1rem 0; font: 15px 'Segoe Print', 'Bradley Hand', cursive; }
+.rotation-0 { --rotation: -3deg; } .rotation-1 { --rotation: 2deg; } .rotation-2 { --rotation: 4deg; } .rotation-3 { --rotation: -2deg; } .rotation-4 { --rotation: 1deg; }
+.lightbox { position: fixed; inset: 0; z-index: 110; display: grid; place-items: center; padding: 3rem; background: rgba(33,21,31,.92); color: white; outline: none; }
+.lightbox img { max-height: 78vh; max-width: min(78vw, 800px); object-fit: contain; }
+.lightbox p { position: absolute; bottom: 1.2rem; margin: 0; font: 15px 'Segoe Print', cursive; }
+.lightbox-close, .lightbox-arrow { position: absolute; display: grid; place-items: center; border: 0; border-radius: 50%; background: rgba(255,255,255,.14); color: white; cursor: pointer; }
+.lightbox-close { right: 1.5rem; top: 1.5rem; width: 42px; height: 42px; } .lightbox-arrow { top: 50%; width: 45px; height: 45px; transform: translateY(-50%); } .lightbox-prev { left: 1.5rem; } .lightbox-next { right: 1.5rem; }
+
+/* ==================== FEATURE 3: EVENT SCHEDULE ==================== */
+.timeline { position: relative; max-width: 760px; margin: auto; padding-left: 2rem; }
+.timeline::before { position: absolute; left: 7px; top: 0; bottom: 0; width: 1px; background: #c49c62; content: ''; }
+.timeline-item { position: relative; padding-bottom: 1.5rem; } .timeline-dot { position: absolute; left: -2rem; top: 1.5rem; width: 15px; height: 15px; border: 3px solid #f6ede8; border-radius: 50%; background: #b89053; box-shadow: 0 0 0 1px #b89053; }
+.timeline-card { padding: 1.4rem 1.5rem; border: 1px solid #e4d7c9; border-radius: 1rem; background: rgba(255,255,255,.58); } .timeline-time { margin: 0; color: #a26262; font-size: 10px; font-weight: 700; letter-spacing: .26em; text-transform: uppercase; } .timeline-card h3 { margin: .4rem 0; color: #321c2b; font-size: 2rem; } .timeline-card p:not(.timeline-time):not(.timeline-venue) { color: #705c65; font-size: .9rem; line-height: 1.7; } .timeline-venue { display: flex; gap: .4rem; align-items: center; color: #8d6555; font-size: .8rem; }
+.timeline-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: 1rem; } .timeline-actions a, .timeline-actions button { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid #d7bca5; border-radius: 999px; padding: .55rem .8rem; background: #fff9f2; color: #321c2b; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-decoration: none; text-transform: uppercase; cursor: pointer; }
+
+/* ==================== FEATURE 4: RSVP ==================== */
+.rsvp-panel { max-width: 620px; margin: auto; padding: 1.5rem; border: 1px solid #e4d7c9; border-radius: 1.25rem; background: rgba(255,255,255,.58); } .progress-track { height: 5px; overflow: hidden; border-radius: 99px; background: #eadbd2; } .progress-track span { display: block; height: 100%; border-radius: inherit; background: #a26262; transition: width .3s; } .progress-label { color: #8d665d; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; } .rsvp-panel label, .wish-inputs label { display: block; color: #58474b; font-size: 10px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+.rsvp-panel input, .rsvp-panel textarea, .wish-form input, .wish-form textarea { box-sizing: border-box; width: 100%; margin-top: .6rem; border: 1px solid #d9c8be; border-radius: 1rem; padding: .8rem 1rem; background: rgba(255,255,255,.7); color: #2d1b23; outline: none; } .rsvp-panel input:focus, .rsvp-panel textarea:focus, .wish-form input:focus, .wish-form textarea:focus { border-color: #a87d6a; box-shadow: 0 0 0 3px #e6d0c4; }
+.choice-grid { display: grid; gap: .8rem; grid-template-columns: repeat(2, 1fr); } .choice-grid button { display: flex; align-items: center; justify-content: space-between; border: 1px solid #d9c8be; border-radius: 1rem; padding: 1rem; background: #fff9f2; color: #321c2b; cursor: pointer; } .choice-grid button.selected { border-color: #a26262; background: #f6e4de; } .rsvp-note { padding: 1.2rem; color: #705c65; line-height: 1.7; text-align: center; } .rsvp-actions { display: flex; justify-content: flex-end; gap: .7rem; margin-top: 1.4rem; } .dark-button, .quiet-button { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; border: 0; border-radius: 999px; padding: .75rem 1.1rem; font-size: 10px; font-weight: 700; letter-spacing: .15em; text-decoration: none; text-transform: uppercase; cursor: pointer; } .dark-button { background: #2d1b23; color: white; } .quiet-button { border: 1px solid #d7bca5; background: #fff9f2; color: #2d1b23; } .input-error { margin: .7rem 0 0; color: #a53e3e; font-size: .8rem; } .rsvp-success { padding: 2rem 1rem; color: #8d665d; text-align: center; } .rsvp-success svg { color: #1d7a3e; } .rsvp-success h2 { margin: .8rem 0; color: #2d1b23; font-size: 3rem; } .confetti { margin-top: 1.5rem; color: #b89053; font-size: 1.5rem; }
+
+/* ==================== FEATURE 5: GUEST WISHES WALL ==================== */
+.wish-form { max-width: 760px; margin: auto auto 2rem; } .wish-inputs { display: grid; grid-template-columns: .7fr 1.3fr; gap: .8rem; } .wish-inputs > div { position: relative; } .wish-inputs textarea { min-height: 90px; resize: vertical; } .wish-inputs span { position: absolute; right: .8rem; bottom: .65rem; color: #8d665d; font-size: 10px; } .wish-card { display: inline-block; width: calc(100% - 1rem); margin: 0 .5rem 1rem; padding: 1.1rem; break-inside: avoid; border-radius: .75rem; color: #4e3f42; box-shadow: 0 8px 18px rgba(70,44,52,.08); animation: wish-in .45s ease both; } .wish-card svg { color: #986f76; } .wish-card p { line-height: 1.65; } .wish-card strong { font-size: .8rem; } .show-more { display: flex; margin: .5rem auto 0; }
+@keyframes wish-in { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 767px) { .feature-section { margin-top: 2rem; padding: 2rem 1rem; border-radius: 1.25rem; } .hero-topline { align-items: flex-start; flex-wrap: wrap; } .hero-topline > span:first-child { flex: 1 1 100%; } .gallery-grid, .wishes-grid { columns: 1; } .wish-inputs, .choice-grid { grid-template-columns: 1fr; } .timeline { padding-left: 1.4rem; } .timeline-dot { left: -1.4rem; } .timeline::before { left: 6px; } .lightbox { padding: 2rem 1rem; } .lightbox-arrow { top: auto; bottom: 3rem; transform: none; } .lightbox-prev { left: 25%; } .lightbox-next { right: 25%; } .rsvp-success h2 { font-size: 2.3rem; } }
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .invitation-shell:not(.is-revealed) .countdown-card { opacity: 1; }
+}
