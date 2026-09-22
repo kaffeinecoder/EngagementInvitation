@@ -5,8 +5,6 @@ import {
   CalendarDays,
   Check,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
   Clock3,
   Download,
   Heart,
@@ -22,43 +20,12 @@ import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion
 import "./index.css";
 import { engagementData as d } from "./data/engagementData";
 import couplePhoto from "./assets/WhatsApp Image 2026-09-18 at 12.38.03 AM.jpeg";
+import page2Photo from "./assets/page2.jpeg";
 import gopuramImage from "./assets/temple-gopuram.png";
 import musicTrack from "./assets/music.mpeg";
+import { OurStoryTimeline } from "./components/OurStoryTimeline";
 
 // ==================== EDITABLE CONTENT CONFIGURATION ====================
-const PHOTO_CONFIG = [
-  {
-    src: couplePhoto,
-    alt: "Pavan and Sanjana together",
-    caption: "Together is our favourite place",
-  },
-  {
-    src: gopuramImage,
-    alt: "Temple gopuram",
-    caption: "A beautiful beginning",
-  },
-  {
-    src: couplePhoto,
-    alt: "A joyful moment",
-    caption: "The story we keep choosing",
-  },
-  {
-    src: couplePhoto,
-    alt: "Pavan and Sanjana smiling",
-    caption: "Little moments, big love",
-  },
-  {
-    src: gopuramImage,
-    alt: "Sacred temple details",
-    caption: "Blessings for the journey",
-  },
-  {
-    src: couplePhoto,
-    alt: "Our engagement memory",
-    caption: "Where our forever starts",
-  },
-];
-
 const EVENT_CONFIG = [
   {
     time: "8:30 AM",
@@ -120,7 +87,7 @@ const PRIMARY_EVENT = EVENT_CONFIG[0];
 const WISH_PALETTE = ["#fff1eb", "#f4f0fb", "#eef6f0", "#fff7dd", "#edf4f8"];
 const RSVP_ENDPOINT =
   "https://script.google.com/macros/s/AKfycbyy0Yhb9ouMe6WoqqfcAf1qrVDOypH17AkbYGuCRJFOYM5pIQlhyGwy1B3EjXfiqJJ1/exec";
-const MUSIC_START_SECONDS = 18;
+const MUSIC_START_SECONDS = 29;
 // ========================================================================
 
 type RSVPStatus = "accept" | "decline";
@@ -136,13 +103,6 @@ const initialForm = {
 const eventDate = new Date(d.event.iso);
 const statCardStyle =
   "rounded-2xl border border-white/80 bg-white/25 p-4 shadow-[0_10px_30px_rgba(70,44,52,0.08)] backdrop-blur-sm";
-const dreamyPetals = [
-  { left: "12%", top: "18%" },
-  { left: "25%", top: "62%" },
-  { left: "72%", top: "20%" },
-  { left: "84%", top: "55%" },
-];
-
 function sanitizeText(value: string, maxLength = 1000) {
   return value
     .replace(/[<>]/g, "")
@@ -219,8 +179,16 @@ function MusicControls({ playRequested }: { playRequested: number }) {
   const playFromMusicOffset = () => {
     const audio = audioRef.current;
     if (!audio) return;
-    audio.currentTime = MUSIC_START_SECONDS;
-    void audio.play().catch(() => undefined);
+    const start = () => {
+      audio.currentTime = MUSIC_START_SECONDS;
+      void audio.play().catch(() => undefined);
+    };
+    if (audio.readyState >= HTMLMediaElement.HAVE_METADATA) {
+      start();
+    } else {
+      audio.addEventListener("loadedmetadata", start, { once: true });
+      audio.load();
+    }
   };
 
   const startMusic = () => {
@@ -296,117 +264,6 @@ function SectionHeading({
     </motion.div>
   );
 }
-function Gallery() {
-  const [selected, setSelected] = useState<number | null>(null);
-  const [visiblePhotos, setVisiblePhotos] = useState<number[]>([]);
-  const touchStart = useRef<number | null>(null);
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((entry) => {
-          if (entry.isIntersecting)
-            setVisiblePhotos((current) => [
-              ...new Set([
-                ...current,
-                Number((entry.target as HTMLElement).dataset.index),
-              ]),
-            ]);
-        }),
-      { threshold: 0.15 },
-    );
-    document
-      .querySelectorAll<HTMLElement>("[data-gallery-index]")
-      .forEach((card) => observer.observe(card));
-    return () => observer.disconnect();
-  }, []);
-  const move = (direction: number) =>
-    setSelected((current) =>
-      current === null
-        ? null
-        : (current + direction + PHOTO_CONFIG.length) % PHOTO_CONFIG.length,
-    );
-  return (
-    <section className="feature-section" id="moments">
-      <SectionHeading
-        eyebrow="Our Moments"
-        title="A few memories we hold close"
-      />
-      <div className="gallery-grid">
-        {PHOTO_CONFIG.map((photo, index) => (
-          <button
-            key={`${photo.caption}-${index}`}
-            type="button"
-            data-gallery-index={index}
-            onClick={() => setSelected(index)}
-            className={`polaroid-card rotation-${index % 5} ${visiblePhotos.includes(index) ? "is-visible" : ""}`}
-          >
-            <img src={photo.src} alt={photo.alt} loading="lazy" />
-            <span>{photo.caption}</span>
-          </button>
-        ))}
-      </div>
-      {selected !== null && (
-        <div
-          className="lightbox"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Photo viewer"
-          onKeyDown={(event) => {
-            if (event.key === "ArrowLeft") move(-1);
-            if (event.key === "ArrowRight") move(1);
-            if (event.key === "Escape") setSelected(null);
-          }}
-          tabIndex={0}
-          onTouchStart={(event) => {
-            touchStart.current = event.changedTouches[0].clientX;
-          }}
-          onTouchEnd={(event) => {
-            if (
-              touchStart.current !== null &&
-              Math.abs(event.changedTouches[0].clientX - touchStart.current) >
-                40
-            )
-              move(
-                event.changedTouches[0].clientX > touchStart.current ? -1 : 1,
-              );
-            touchStart.current = null;
-          }}
-        >
-          <button
-            type="button"
-            className="lightbox-close"
-            onClick={() => setSelected(null)}
-            aria-label="Close photo viewer"
-          >
-            <X size={20} />
-          </button>
-          <button
-            type="button"
-            className="lightbox-arrow lightbox-prev"
-            onClick={() => move(-1)}
-            aria-label="Previous photo"
-          >
-            <ChevronLeft />
-          </button>
-          <img
-            src={PHOTO_CONFIG[selected].src}
-            alt={PHOTO_CONFIG[selected].alt}
-          />
-          <button
-            type="button"
-            className="lightbox-arrow lightbox-next"
-            onClick={() => move(1)}
-            aria-label="Next photo"
-          >
-            <ChevronRight />
-          </button>
-          <p>{PHOTO_CONFIG[selected].caption}</p>
-        </div>
-      )}
-    </section>
-  );
-}
-
 // ==================== FEATURE 3: EVENT SCHEDULE ====================
 function createCalendarFile(event: (typeof EVENT_CONFIG)[number]) {
   const toCalendarDate = (iso: string) =>
@@ -847,9 +704,6 @@ export function InvitationExperience() {
                       <span className="h-px w-8 bg-[#c28f83]" />
                       BAPPA'S BLESSINGS, OUR BEGINNINGS
                     </span>
-                    <span className="rounded-full border border-[#cfa99b] bg-[#fff9f2]/70 px-3 py-1.5">
-                      Save the date
-                    </span>
                   </div>
                   <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
                     <div>
@@ -956,7 +810,7 @@ export function InvitationExperience() {
                           </div>
                           <div className="timeline-actions hero-event-actions">
                             <a
-                              href={`https://www.google.com/maps/dir/?api=1&destination=${PRIMARY_EVENT.lat},${PRIMARY_EVENT.lng}`}
+                              href="https://maps.app.goo.gl/EWBvKF1si1SpuZ8n8"
                               target="_blank"
                               rel="noreferrer"
                             >
@@ -996,19 +850,10 @@ export function InvitationExperience() {
                 style={{
                   scale: gopuramScale,
                   y: gopuramY,
-                  backgroundImage: `url("${couplePhoto}")`,
+                  backgroundImage: `url("${page2Photo}")`,
                 }}
                 className="relative z-10 h-[360px] w-full bg-cover bg-center sm:h-[440px]"
               />
-              <div className="absolute inset-0 z-20">
-                {dreamyPetals.map((petal) => (
-                  <span
-                    key={petal.left}
-                    className="absolute h-3 w-2 rounded-[100%_0_100%_0] bg-[#fff3ed]/80"
-                    style={{ left: petal.left, top: petal.top }}
-                  />
-                ))}
-              </div>
             </div>
             <div className="relative z-10 flex flex-col items-center gap-3 px-5 py-8 text-center sm:px-10 sm:py-10">
               <p className="text-[10px] font-semibold uppercase tracking-[0.44em] text-[#986f76]">
@@ -1023,7 +868,7 @@ export function InvitationExperience() {
               </p>
             </div>
           </motion.section>
-          <Gallery />
+          <OurStoryTimeline />
           <Schedule />
           <RSVP />
           <WishesWall />
