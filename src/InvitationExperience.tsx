@@ -132,9 +132,7 @@ function getStoredWishes(): Wish[] {
 function EnvelopeIntro({ onOpen }: { onOpen: () => void }) {
   const [opened, setOpened] = useState(false);
   const [visible, setVisible] = useState(
-    () =>
-      !window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
-      !window.sessionStorage.getItem("pavan-sanjana-envelope-opened"),
+    () => !window.sessionStorage.getItem("pavan-sanjana-envelope-opened"),
   );
   const open = () => {
     if (opened) return;
@@ -172,23 +170,30 @@ function EnvelopeIntro({ onOpen }: { onOpen: () => void }) {
   );
 }
 
-function MusicControls({ playRequested }: { playRequested: number }) {
+function MusicControls({
+  playRequested,
+  startMusicRef,
+}: {
+  playRequested: number;
+  startMusicRef: React.MutableRefObject<(() => void) | null>;
+}) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [muted, setMuted] = useState(false);
 
   const playFromMusicOffset = () => {
     const audio = audioRef.current;
     if (!audio) return;
-    const start = () => {
+    try {
       audio.currentTime = MUSIC_START_SECONDS;
       void audio.play().catch(() => undefined);
-    };
-    if (audio.readyState >= HTMLMediaElement.HAVE_METADATA) {
-      start();
-    } else {
+    } catch {
+      const start = () => {
+        audio.currentTime = MUSIC_START_SECONDS;
+        void audio.play().catch(() => undefined);
+      };
       audio.addEventListener("loadedmetadata", start, { once: true });
       audio.load();
-    }
+    };
   };
 
   const startMusic = () => {
@@ -211,6 +216,7 @@ function MusicControls({ playRequested }: { playRequested: number }) {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
+    startMusicRef.current = startMusic;
     audio.loop = false;
     const restartFromOffset = () => {
       if (!audio.muted) playFromMusicOffset();
@@ -221,10 +227,11 @@ function MusicControls({ playRequested }: { playRequested: number }) {
     }
     playFromMusicOffset();
     return () => {
+      startMusicRef.current = null;
       audio.removeEventListener("ended", restartFromOffset);
       audio.pause();
     };
-  }, [playRequested]);
+  }, [playRequested, startMusicRef]);
 
   return (
     <>
@@ -644,10 +651,11 @@ function WishesWall() {
 
 export function InvitationExperience() {
   const [musicStarted, setMusicStarted] = useState(false);
+  const startMusicRef = useRef<(() => void) | null>(null);
   const [musicRequested, setMusicRequested] = useState(() => {
-    const envelopePending =
-      !window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
-      !window.sessionStorage.getItem("pavan-sanjana-envelope-opened");
+    const envelopePending = !window.sessionStorage.getItem(
+      "pavan-sanjana-envelope-opened",
+    );
     return envelopePending ? 0 : 1;
   });
   const [timeLeft, setTimeLeft] = useState(() =>
@@ -678,11 +686,15 @@ export function InvitationExperience() {
     <>
       <EnvelopeIntro
         onOpen={() => {
+          startMusicRef.current?.();
           setMusicRequested((current) => current + 1);
           setMusicStarted(true);
         }}
       />
-      <MusicControls playRequested={musicStarted ? 1 : 0} />
+      <MusicControls
+        playRequested={musicStarted ? 1 : 0}
+        startMusicRef={startMusicRef}
+      />
       <main className={`invitation-shell ${musicRequested ? "is-revealed" : ""} min-h-screen overflow-hidden bg-[#21151f] px-4 py-5 text-slate-800 sm:px-6 sm:py-8 lg:px-8`}>
         <div className="mx-auto max-w-6xl">
           <motion.div
