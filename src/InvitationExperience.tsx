@@ -86,7 +86,7 @@ const PRIMARY_EVENT = EVENT_CONFIG[0];
 
 const WISH_PALETTE = ["#fff1eb", "#f4f0fb", "#eef6f0", "#fff7dd", "#edf4f8"];
 const RSVP_ENDPOINT =
-  "https://script.google.com/macros/s/AKfycbyy0Yhb9ouMe6WoqqfcAf1qrVDOypH17AkbYGuCRJFOYM5pIQlhyGwy1B3EjXfiqJJ1/exec";
+  "https://script.google.com/macros/s/AKfycbwma7sKNrfpJMhC9iEb_hC4dahvsQZGRSoIBNUNcagO2Ak94kKo66MMl70r-5piSpj9/exec";
 const MUSIC_START_SECONDS = 29;
 // ========================================================================
 
@@ -95,9 +95,12 @@ type RSVPStep = 0 | 1 | 2 | 3 | 4;
 type Wish = { id: string; name: string; message: string; color: string };
 const initialForm = {
   fullName: "",
+  phone: "",
   side: "" as "pavan" | "sanjana" | "",
   attending: "" as RSVPStatus | "",
   guests: 1,
+  breakfast: "" as "yes" | "no" | "",
+  lunch: "" as "yes" | "no" | "",
   message: "",
 };
 const eventDate = new Date(d.event.iso);
@@ -341,6 +344,8 @@ function RSVP() {
   const advance = () => {
     if (step === 0 && !sanitizeText(form.fullName, 100))
       return setError("Please enter your full name.");
+    if (step === 0 && !/^\+?[0-9\s-]{8,15}$/.test(sanitizeText(form.phone, 20)))
+      return setError("Please enter a valid phone number.");
     if (step === 1 && !form.side)
       return setError("Please choose Pavan's or Sanjana's side.");
     if (step === 2 && !form.attending)
@@ -351,6 +356,12 @@ function RSVP() {
       (form.guests < 1 || form.guests > 8)
     )
       return setError("Choose between 1 and 8 guests.");
+    if (
+      step === 3 &&
+      form.attending === "accept" &&
+      (!form.breakfast || !form.lunch)
+    )
+      return setError("Please tell us whether you will have breakfast and lunch.");
     setStep((current) => (current === 4 ? 4 : ((current + 1) as RSVPStep)));
   };
   const submit = async (event: React.FormEvent) => {
@@ -360,9 +371,12 @@ function RSVP() {
     setError("");
     const payload = {
       fullName: sanitizeText(form.fullName, 100),
+      phone: sanitizeText(form.phone, 20),
       side: form.side,
       attending: form.attending,
       guests: form.attending === "accept" ? form.guests : 0,
+      breakfast: form.attending === "accept" ? form.breakfast : "",
+      lunch: form.attending === "accept" ? form.lunch : "",
       message: sanitizeText(form.message, 500),
     };
     try {
@@ -402,6 +416,14 @@ function RSVP() {
               “{sanitizeText(form.message, 500)}”
             </p>
           )}
+          <p className="confirmation-message">
+            Phone: {sanitizeText(form.phone, 20)}
+          </p>
+          {form.attending === "accept" && (
+            <p className="confirmation-message">
+              Breakfast: {form.breakfast === "yes" ? "Yes" : "No"} · Lunch: {form.lunch === "yes" ? "Yes" : "No"}
+            </p>
+          )}
           <div className="confetti" aria-hidden="true">
             ✦ · ✧ · ✦ · ✧ · ✦
           </div>
@@ -427,17 +449,29 @@ function RSVP() {
         </p>
         <form onSubmit={submit} noValidate>
           {step === 0 && (
-            <label>
-              Full name
-              <input
-                autoFocus
-                type="text"
-                value={form.fullName}
-                onChange={(event) => update("fullName", event.target.value)}
-                placeholder="Your full name"
-                maxLength={100}
-              />
-            </label>
+            <>
+              <label>
+                Full name
+                <input
+                  autoFocus
+                  type="text"
+                  value={form.fullName}
+                  onChange={(event) => update("fullName", event.target.value)}
+                  placeholder="Your full name"
+                  maxLength={100}
+                />
+              </label>
+              <label>
+                Phone no.
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={(event) => update("phone", event.target.value)}
+                  placeholder="+91 98765 43210"
+                  maxLength={20}
+                />
+              </label>
+            </>
           )}
           {step === 1 && (
             <div className="choice-grid">
@@ -476,19 +510,59 @@ function RSVP() {
             </div>
           )}
           {step === 3 && form.attending === "accept" && (
-            <label>
-              Number of guests
-              <input
-                autoFocus
-                type="number"
-                min="1"
-                max="8"
-                value={form.guests}
-                onChange={(event) =>
-                  update("guests", Number(event.target.value))
-                }
-              />
-            </label>
+            <>
+              <label>
+                Number of guests
+                <input
+                  autoFocus
+                  type="number"
+                  min="1"
+                  max="8"
+                  value={form.guests}
+                  onChange={(event) =>
+                    update("guests", Number(event.target.value))
+                  }
+                />
+              </label>
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#58474b]">
+                  Will you have breakfast?
+                </p>
+                <div className="choice-grid mt-2">
+                  {(["yes", "no"] as const).map((option) => (
+                    <button
+                      type="button"
+                      key={option}
+                      className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${
+                        form.breakfast === option ? "selected" : ""
+                      }`}
+                      onClick={() => update("breakfast", option)}
+                    >
+                      {option === "yes" ? "Yes" : "No"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#58474b]">
+                  Will you have lunch?
+                </p>
+                <div className="choice-grid mt-2">
+                  {(["yes", "no"] as const).map((option) => (
+                    <button
+                      type="button"
+                      key={option}
+                      className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${
+                        form.lunch === option ? "selected" : ""
+                      }`}
+                      onClick={() => update("lunch", option)}
+                    >
+                      {option === "yes" ? "Yes" : "No"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
           )}
           {step === 3 && form.attending === "decline" && (
             <div className="rsvp-note">

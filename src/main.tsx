@@ -26,9 +26,12 @@ type Step = 0 | 1 | 2;
 interface RSVPFormState {
   fullName: string;
   email: string;
+  phone: string;
   message: string;
   guests: number;
   dietary: string;
+  breakfast: 'yes' | 'no' | '';
+  lunch: 'yes' | 'no' | '';
 }
 
 interface RSVPSubmission {
@@ -39,9 +42,12 @@ interface RSVPSubmission {
 const initialFormState: RSVPFormState = {
   fullName: '',
   email: '',
+  phone: '',
   message: '',
   guests: 0,
   dietary: '',
+  breakfast: '',
+  lunch: '',
 };
 
 const eventDate = new Date(d.event.iso);
@@ -133,6 +139,10 @@ function App() {
       nextErrors.email = 'Please enter a valid email address.';
     }
 
+    if (!form.phone.trim() || !/^\+?[0-9\s-]{8,15}$/.test(form.phone.trim())) {
+      nextErrors.phone = 'Please enter a valid phone number.';
+    }
+
     return nextErrors;
   };
 
@@ -157,6 +167,8 @@ function App() {
         ...form,
         guests: rsvpStatus === 'accept' ? form.guests : 0,
         dietary: rsvpStatus === 'accept' ? form.dietary : '',
+        breakfast: rsvpStatus === 'accept' ? form.breakfast : '',
+        lunch: rsvpStatus === 'accept' ? form.lunch : '',
       },
     };
 
@@ -406,6 +418,18 @@ function App() {
                           {errors.email && <span className="mt-2 block text-xs text-[#a53e3e]">{errors.email}</span>}
                         </label>
 
+                        <label className="block text-[10px] font-semibold uppercase tracking-[0.28em] text-[#58474b] sm:col-span-2">
+                          Phone no.
+                          <input
+                            type="tel"
+                            value={form.phone}
+                            onChange={(event) => updateField('phone', event.target.value)}
+                            className="mt-2 w-full rounded-2xl border border-[#d9c8be] bg-white/70 px-4 py-3 text-sm text-[#2d1b23] outline-none transition focus:border-[#a87d6a] focus:ring-2 focus:ring-[#e6d0c4]"
+                            placeholder="+91 98765 43210"
+                          />
+                          {errors.phone && <span className="mt-2 block text-xs text-[#a53e3e]">{errors.phone}</span>}
+                        </label>
+
                         {rsvpStatus === 'accept' && (
                           <motion.div
                             initial={{ opacity: 0, height: 0 }}
@@ -439,6 +463,46 @@ function App() {
                                 placeholder="Vegetarian, vegan, no onion..."
                               />
                             </label>
+
+                            <div className="block text-[10px] font-semibold uppercase tracking-[0.28em] text-[#58474b]">
+                              Breakfast
+                              <div className="mt-2 grid grid-cols-2 gap-3">
+                                {(['yes', 'no'] as const).map((option) => (
+                                  <button
+                                    key={option}
+                                    type="button"
+                                    onClick={() => updateField('breakfast', option)}
+                                    className={`rounded-2xl border px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.2em] transition ${
+                                      form.breakfast === option
+                                        ? 'border-[#a87d6a] bg-[#f6e4de] text-[#2d1b23]'
+                                        : 'border-[#d9c8be] bg-white/70 text-[#574a4d] hover:bg-white'
+                                    }`}
+                                  >
+                                    {option === 'yes' ? 'Yes' : 'No'}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="block text-[10px] font-semibold uppercase tracking-[0.28em] text-[#58474b]">
+                              Lunch
+                              <div className="mt-2 grid grid-cols-2 gap-3">
+                                {(['yes', 'no'] as const).map((option) => (
+                                  <button
+                                    key={option}
+                                    type="button"
+                                    onClick={() => updateField('lunch', option)}
+                                    className={`rounded-2xl border px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.2em] transition ${
+                                      form.lunch === option
+                                        ? 'border-[#a87d6a] bg-[#f6e4de] text-[#2d1b23]'
+                                        : 'border-[#d9c8be] bg-white/70 text-[#574a4d] hover:bg-white'
+                                    }`}
+                                  >
+                                    {option === 'yes' ? 'Yes' : 'No'}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
                           </motion.div>
                         )}
                       </div>
@@ -526,6 +590,14 @@ function App() {
                         </div>
                       )}
 
+                      <div className={statCardStyle}>
+                        <div className="flex items-center gap-2 text-[#8d665d]">
+                          <Mail size={16} />
+                          <span className="text-[10px] uppercase tracking-[0.28em]">Phone</span>
+                        </div>
+                        <p className="mt-3 text-sm text-[#2d1b23]">{submitted.form.phone || 'Not provided'}</p>
+                      </div>
+
                       {submitted.status === 'accept' && (
                         <div className={statCardStyle}>
                           <div className="flex items-center gap-2 text-[#8d665d]">
@@ -533,6 +605,18 @@ function App() {
                             <span className="text-[10px] uppercase tracking-[0.28em]">Diet</span>
                           </div>
                           <p className="mt-3 text-sm text-[#2d1b23]">{submitted.form.dietary || 'No preference specified'}</p>
+                        </div>
+                      )}
+
+                      {submitted.status === 'accept' && (
+                        <div className={statCardStyle}>
+                          <div className="flex items-center gap-2 text-[#8d665d]">
+                            <UtensilsCrossed size={16} />
+                            <span className="text-[10px] uppercase tracking-[0.28em]">Meals</span>
+                          </div>
+                          <p className="mt-3 text-sm text-[#2d1b23]">
+                            Breakfast: {submitted.form.breakfast === 'yes' ? 'Yes' : 'No'} · Lunch: {submitted.form.lunch === 'yes' ? 'Yes' : 'No'}
+                          </p>
                         </div>
                       )}
 
