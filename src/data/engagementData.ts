@@ -47,7 +47,7 @@ export const loveStoryMilestones = [
 		date: "24th December 2023",
 		title: "Dhurandhar in Dharwad, Mission Undercover",
 		story:
-			"I never thought I'd come all the way to Dharwad and still keep my parents completely unaware that I was there. I had to make the trip down to console Sanjana after our first-ever fight. Apparently, boyfriend duties now include emergency trips to Dharwad. Next time my manager hears that I am sick, I am probably not fooling anyone.",
+			"I never thought I'd come all the way to Dharwad and still keep my parents completely unaware that I was there. I had to make the trip down to console Sanjana after our first-ever fight. Apparently, boyfriend duties now include emergency trips to Dharwad. Next time my manager hears that I am sick, I am probably not. ",
 		author: "Pavan",
 		image: picThree,
 		alt: "A memory from Pavan's surprise trip to Dharwad",
